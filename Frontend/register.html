@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สมัครสมาชิก - Calorie Tracker</title>
+</head>
+<body>
+
+    <h2>สมัครสมาชิกใหม่</h2>
+    <p>กรอกข้อมูลด้านล่างเพื่อเริ่มต้นติดตามแคลอรี่ของคุณ</p>
+    
+    <form id="registerForm">
+        <div>
+            <label>ชื่อผู้ใช้ (Username):</label><br>
+            <input type="text" id="regUsername" required>
+        </div>
+        <br>
+        
+        <div>
+            <label>รหัสผ่าน (Password):</label><br>
+            <input type="password" id="regPassword" required>
+        </div>
+        <br>
+
+        <div>
+            <label>อีเมล (Email):</label><br>
+            <input type="email" id="regEmail" required>
+        </div>
+        <br>
+
+        <div>
+            <label>น้ำหนัก (กิโลกรัม):</label><br>
+            <input type="number" id="regWeight" step="0.1" placeholder="เช่น 65.5">
+        </div>
+        <br>
+
+        <div>
+            <label>ส่วนสูง (เซนติเมตร):</label><br>
+            <input type="number" id="regHeight" step="0.1" placeholder="เช่น 170">
+        </div>
+        <br>
+        
+        <button type="submit">ยืนยันการสมัครสมาชิก</button>
+    </form>
+
+    <p id="errorMessage" style="color: red;"></p>
+
+    <br><hr>
+    <p>มีบัญชีอยู่แล้วใช่ไหม? <a href="index.html">กลับไปหน้าเข้าสู่ระบบ</a></p>
+
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); // เบรกไม่ให้หน้ารีเฟรช
+
+            // ดึงข้อมูลจากช่องกรอกทั้งหมด
+            const usernameInput = document.getElementById('regUsername').value.trim();
+            const passwordInput = document.getElementById('regPassword').value.trim();
+            const emailInput = document.getElementById('regEmail').value.trim();
+            
+            // น้ำหนัก/ส่วนสูง ถ้าผู้ใช้ไม่กรอก ให้ส่งค่าว่างไปแทน
+            const weightInput = document.getElementById('regWeight').value || null;
+            const heightInput = document.getElementById('regHeight').value || null;
+            
+            const errorText = document.getElementById('errorMessage');
+            errorText.innerText = ''; // ล้างข้อความ Error เก่าทิ้งก่อน
+
+            try {
+                // ส่งข้อมูลไปหา Backend
+                const response = await fetch('http://localhost:3000/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        username: usernameInput, 
+                        password: passwordInput,
+                        email: emailInput,
+                        weight: weightInput,
+                        height: heightInput
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // ถ้า Backend ตอบว่า OK (สมัครสำเร็จ)
+                    alert('🎉 สมัครสมาชิกสำเร็จ! ระบบจะพาคุณไปหน้าเข้าสู่ระบบ');
+                    
+                    // เด้งกลับไปหน้า Login เพื่อให้ผู้ใช้เข้าสู่ระบบด้วยรหัสใหม่
+                    window.location.href = 'index.html';
+                } else {
+                    // ถ้าระบบฟ้อง Error (เช่น ชื่อซ้ำ, อีเมลซ้ำ)
+                    errorText.innerText = data.error || 'เกิดข้อผิดพลาดในการสมัครสมาชิก';
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                errorText.innerText = 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่';
+            }
+        });
+    </script>
+</body>
+</html>
