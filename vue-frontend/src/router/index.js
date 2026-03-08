@@ -2,6 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import DashboardView from '../views/DashboardView.vue'
+import AddFoodView from '../views/AddFoodView.vue'
+import RegisterView from '../views/RegisterView.vue'
+
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,7 +25,17 @@ const router = createRouter({
       name: 'dashboard',
       component: DashboardView,
       // 🏷️ ติดป้ายบอกยามว่าหน้านี้เป็นเขตหวงห้าม ต้อง Login ก่อน!
-      meta: { requiresAuth: true } 
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/add-food',
+      name: 'add-food',
+      component: AddFoodView
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView
     }
   ]
 })
@@ -32,7 +46,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth) {
     // 2. ถ้ามี ให้เช็คว่าในกระเป๋า (localStorage) มีตั๋วล็อกอินหรือยัง?
     const isLoggedIn = localStorage.getItem('isLoggedIn')
-    
+
     if (isLoggedIn === 'true') {
       next() // มีตั๋ว ปล่อยผ่านได้เลย!
     } else {
@@ -41,7 +55,7 @@ router.beforeEach((to, from, next) => {
     }
   } else {
     // 3. ถ้าเป็นหน้าทั่วไป (Home, Login) ปล่อยผ่านได้เลย
-    next() 
+    next()
   }
 })
 

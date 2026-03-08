@@ -5,18 +5,18 @@
     
     <div class="form-group">
       <label>ชื่อผู้ใช้:</label>
-      <input type="text" v-model="username" placeholder="กรอกชื่อผู้ใช้">
+      <input type="text" v-model="username" placeholder="กรอกชื่อผู้ใช้" @keyup.enter="login">
     </div>
     
     <div class="form-group">
       <label>รหัสผ่าน:</label>
-      <input type="password" v-model="password" placeholder="กรอกรหัสผ่าน">
+      <input type="password" v-model="password" placeholder="กรอกรหัสผ่าน" @keyup.enter="login">
     </div>
 
     <button @click="login">เข้าสู่ระบบ</button>
     <hr>
     
-    <p>ยังไม่มีบัญชีใช่ไหม? <button @click="goToRegister">สมัครสมาชิกเลย</button></p>
+    <p>ยังไม่มีบัญชีใช่ไหม? <button @click="goToRegister" class="btn-register">สมัครสมาชิกเลย</button></p>
   </div>
 </template>
 
@@ -24,31 +24,53 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-// ตัวแปรเก็บค่าที่ผู้ใช้พิมพ์
 const username = ref('')
 const password = ref('')
-
-// เรียกใช้เครื่องมือเปลี่ยนหน้าของ Vue
 const router = useRouter()
 
 const login = async () => {
-    if (username.value !== '' && password.value !== '') {
-        alert('ยินดีต้อนรับคุณ ' + username.value + ' !')
-        
-        // 👉 แจกตั๋วลงในระบบ (จำลองว่าล็อกอินสำเร็จแล้ว)
-        localStorage.setItem('isLoggedIn', 'true')
-        
-        // สั่งให้เปลี่ยนหน้าไปที่ Dashboard
-        router.push('/dashboard') 
+  if (!username.value || !password.value) {
+    alert('กรุณากรอกชื่อผู้ใช้และรหัสผ่านให้ครบถ้วน');
+    return;
+  }
+
+  // ล้างข้อมูลเก่าทิ้งก่อน ป้องกันการจำค่าจากครั้งที่แล้ว
+  localStorage.clear();
+
+  try {
+    const response = await fetch('http://localhost:3000/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: username.value,
+        password: password.value
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // ✅ ล็อกอินผ่าน (Server ส่งสถานะ 200)
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userId', data.user.id); 
+      localStorage.setItem('username', data.user.username);
+      
+      alert('ยินดีต้อนรับครับ!');
+      router.push('/dashboard');
     } else {
-        alert('กรุณากรอกชื่อผู้ใช้และรหัสผ่านให้ครบครับ!')
+      // ❌ ล็อกอินไม่ผ่าน (Server ส่งสถานะ 401)
+      password.value = ''; // ล้างช่องรหัสผ่าน
+      alert(data.error || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
     }
-}
+  } catch (error) {
+    console.error("Login Error:", error);
+    alert('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ โปรดเช็คว่ารัน server.js หรือยัง');
+  }
+};
 
 const goToRegister = () => {
-    // เดี๋ยวเราจะสร้างหน้า Register ต่อไป
-    alert('เดี๋ยวพาไปหน้าสมัครสมาชิกครับ!')
-}
+  router.push('/register');
+};
 </script>
 
 <style scoped>
@@ -67,9 +89,11 @@ const goToRegister = () => {
 }
 input {
   width: 100%;
-  padding: 8px;
+  padding: 10px;
   margin-top: 5px;
   box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 button {
   width: 100%;
@@ -80,8 +104,21 @@ button {
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
+  transition: 0.3s;
 }
 button:hover {
   background-color: #45a049;
+}
+.btn-register {
+  background-color: transparent;
+  color: #4CAF50;
+  width: auto;
+  padding: 0;
+  font-size: 14px;
+  text-decoration: underline;
+}
+.btn-register:hover {
+  background-color: transparent;
+  color: #388E3C;
 }
 </style>
