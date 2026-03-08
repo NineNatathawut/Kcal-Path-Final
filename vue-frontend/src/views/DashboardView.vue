@@ -2,6 +2,9 @@
   <div class="dashboard-container">
     <h1>แผงควบคุม (Dashboard)</h1>
     <button @click="logout" style="background-color: #ff4d4d; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">ออกจากระบบ</button>
+
+    <button @click="router.push('/edit-profile')" style="background-color: #2196F3; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-left: 10px;">⚙️ แก้ไขโปรไฟล์</button>
+
     <hr>
 
     <h2>👤 ข้อมูลของคุณ: <span>{{ userName }}</span></h2>
@@ -63,6 +66,10 @@
 
     <hr>
     <button @click="goToAddFood" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">+ บันทึกมื้ออาหารใหม่</button>
+
+    <button @click="router.push('/history')" style="padding: 10px 20px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+  📅 ดูประวัติย้อนหลัง
+</button>
 
   </div>
 </template>
@@ -183,8 +190,11 @@ const fetchDashboardData = async () => {
 }
 
 const logout = () => {
+    // 1. ล้างข้อมูลการเข้าสู่ระบบทั้งหมด
     localStorage.clear()
-    router.push('/login')
+    
+    // 2. ดีดกลับไปหน้า Home แทน
+    router.push('/') 
 }
 
 const goToAddFood = () => {
