@@ -71,7 +71,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-// --- ลอจิกเดิมของคุณทั้งหมด ไม่มีการแก้ไข ---
 const router = useRouter()
 const form = ref({
   weight: 0, height: 0, age: 0, 
@@ -80,7 +79,8 @@ const form = ref({
 
 onMounted(async () => {
   const userId = localStorage.getItem('userId')
-  const res = await fetch(`http://localhost:3000/users/${userId}`)
+  // 🌟 แก้ไข: เติม /api/ สำหรับดึงข้อมูลผู้ใช้มาแสดงในฟอร์ม
+  const res = await fetch(`http://localhost:3000/api/users/${userId}`)
   if (res.ok) {
     const data = await res.json()
     form.value = data
@@ -90,7 +90,8 @@ onMounted(async () => {
 const updateProfile = async () => {
   const userId = localStorage.getItem('userId')
   try {
-    const res = await fetch(`http://localhost:3000/users/${userId}`, {
+    // 🌟 แก้ไข: เติม /api/ สำหรับอัปเดตข้อมูลผู้ใช้
+    const res = await fetch(`http://localhost:3000/api/users/${userId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form.value)

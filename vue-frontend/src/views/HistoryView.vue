@@ -115,7 +115,8 @@ const fetchHistoryData = async () => {
   }
 
   try {
-    const userRes = await fetch(`http://localhost:3000/users/${userId}`)
+    // 🌟 แก้ไข: เติม /api/ สำหรับดึงข้อมูลผู้ใช้
+    const userRes = await fetch(`http://localhost:3000/api/users/${userId}`)
     if (userRes.ok) {
       const userData = await userRes.json()
       let bmr = (10 * userData.weight) + (6.25 * userData.height) - (5 * userData.age)
@@ -124,7 +125,8 @@ const fetchHistoryData = async () => {
       userTDEE.value = Math.round(bmr * (multipliers[userData.activity_level] || 1.2))
     }
 
-    const summaryRes = await fetch(`http://localhost:3000/daily-summary/${userId}/${selectedDate.value}`)
+    // 🌟 แก้ไข: เติม /api/ สำหรับดึงข้อมูลสรุปการกินรายวัน
+    const summaryRes = await fetch(`http://localhost:3000/api/daily-summary/${userId}/${selectedDate.value}`)
     if (summaryRes.ok) {
       const summaryData = await summaryRes.json()
       totalCalories.value = summaryData.summary.total_calories || 0

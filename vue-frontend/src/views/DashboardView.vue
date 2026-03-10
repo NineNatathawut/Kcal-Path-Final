@@ -117,7 +117,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-// --- ลอจิกเดิมของคุณทั้งหมด อยู่ตรงนี้ (ไม่มีการเปลี่ยนโค้ดส่วนนี้) ---
 const router = useRouter()
 
 const userName = ref('กำลังโหลด...')
@@ -193,7 +192,8 @@ const fetchDashboardData = async () => {
     }
 
     try {
-        const userRes = await fetch(`http://localhost:3000/users/${userId}`)
+        // 🌟 แก้ไข: เติม /api/ สำหรับดึงข้อมูล User
+        const userRes = await fetch(`http://localhost:3000/api/users/${userId}`)
         if (userRes.ok) {
             const userData = await userRes.json()
             userName.value = userData.username
@@ -206,13 +206,14 @@ const fetchDashboardData = async () => {
         }
 
         const today = new Intl.DateTimeFormat('en-CA', { 
-    timeZone: 'Asia/Bangkok', 
-    year: 'numeric', 
-    month: '2-digit', 
-    day: '2-digit' 
-}).format(new Date());
+            timeZone: 'Asia/Bangkok', 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit' 
+        }).format(new Date());
         
-        const summaryRes = await fetch(`http://localhost:3000/daily-summary/${userId}/${today}`)
+        // 🌟 แก้ไข: เติม /api/ สำหรับดึงข้อมูลสรุปรายวัน
+        const summaryRes = await fetch(`http://localhost:3000/api/daily-summary/${userId}/${today}`)
         if (summaryRes.ok) {
             const summaryData = await summaryRes.json()
             totalCalories.value = summaryData.summary.total_calories || 0
@@ -242,7 +243,8 @@ onMounted(() => {
 const deleteLog = async (logId) => {
   if (!confirm('คุณแน่ใจนะว่าจะลบรายการนี้?')) return;
   try {
-    const response = await fetch(`http://localhost:3000/food-logs/${logId}`, { method: 'DELETE' });
+    // 🌟 แก้ไข: เติม /api/ สำหรับเส้นทางการลบข้อมูล
+    const response = await fetch(`http://localhost:3000/api/food-logs/${logId}`, { method: 'DELETE' });
     if (response.ok) {
       fetchDashboardData(); 
     } else {

@@ -156,7 +156,8 @@ const customFood = ref({
 
 const fetchFoods = async () => {
   try {
-    const response = await fetch('http://localhost:3000/foods')
+    // 🌟 แก้ไข: เติม /api/ สำหรับดึงรายการอาหารทั้งหมด
+    const response = await fetch('http://localhost:3000/api/foods')
     if (response.ok) foods.value = await response.json()
   } catch (error) {
     console.error('Error fetching foods:', error)
@@ -201,7 +202,8 @@ const submitFoodLog = async () => {
     }
 
     try {
-      const createRes = await fetch('http://localhost:3000/foods', {
+      // 🌟 แก้ไข: เติม /api/ สำหรับสร้างรายการอาหารใหม่
+      const createRes = await fetch('http://localhost:3000/api/foods', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(customFood.value)
@@ -239,7 +241,8 @@ const submitFoodLog = async () => {
 
   // ส่งข้อมูลไปเซิร์ฟเวอร์
   try {
-    const response = await fetch('http://localhost:3000/food-logs', {
+    // 🌟 แก้ไข: เติม /api/ สำหรับบันทึกประวัติการกิน (Daily Log)
+    const response = await fetch('http://localhost:3000/api/food-logs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

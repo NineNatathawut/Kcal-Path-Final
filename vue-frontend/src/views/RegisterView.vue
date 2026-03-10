@@ -1,10 +1,5 @@
 <template>
   <div class="register-wrapper">
-    <!-- <img 
-      src="https://media.giphy.com/media/3o7TKo6fjy7XydHCiQ/giphy.gif" 
-      alt="Premium Background" 
-      class="gif-bg" -->
-    />
     <div class="overlay"></div>
 
     <div class="register-container glass-card">
@@ -111,7 +106,8 @@ const register = async () => {
   }
 
   try {
-    const response = await fetch('http://localhost:3000/register', {
+    // 🌟 เปลี่ยน URL ให้เรียกใช้งาน /api/register
+    const response = await fetch('http://localhost:3000/api/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form.value)
@@ -122,10 +118,12 @@ const register = async () => {
     if (response.ok) {
       alert('🎉 สมัครสมาชิกสำเร็จ! ระบบจะพาคุณเข้าสู่ระบบทันที')
       
+      // บันทึกข้อมูลลง LocalStorage เพื่อให้หน้าอื่นรู้ว่าล็อกอินแล้ว
       localStorage.setItem('isLoggedIn', 'true')
       localStorage.setItem('userId', data.userId)
       localStorage.setItem('username', form.value.username)
       
+      // ส่งไปหน้า Dashboard
       router.push('/dashboard')
     } else {
       alert(`❌ สมัครไม่สำเร็จ: ${data.error}`)
@@ -158,12 +156,12 @@ const goToLogin = () => {
 
 .gif-bg {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-  object-fit: cover; z-index: 0; opacity: 0.6; /* ปรับให้สว่างขึ้นนิดหน่อยเพื่อให้ดูหรู */
+  object-fit: cover; z-index: 0; opacity: 0.6;
 }
 
 .overlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background-color: rgba(15, 23, 42, 0.4); /* ลดความดำลง เพื่อให้เห็นลายพื้นหลังชัดขึ้น */
+  background-color: rgba(15, 23, 42, 0.4);
   z-index: 1;
 }
 
@@ -177,9 +175,9 @@ const goToLogin = () => {
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.05); /* โปร่งใสมากๆ */
-  backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); /* เบลอจัดๆ แบบกระจกฝ้า */
-  border: 1px solid rgba(255, 255, 255, 0.15); /* ขอบขาวจางๆ */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 24px;
   padding: 40px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(255, 255, 255, 0.05);
@@ -197,8 +195,8 @@ const goToLogin = () => {
 
 /* 🎨 --- ส่วนของฟอร์ม --- */
 .glass-inner-card {
-  background: transparent; /* ไม่ใส่สีพื้นหลัง ให้กลืนไปกับกระจกแผ่นใหญ่ */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* มีแค่เส้นคั่นบางๆ */
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0 0 20px 0;
   margin-bottom: 20px;
   text-align: left;
@@ -212,7 +210,7 @@ const goToLogin = () => {
   margin-bottom: 20px;
 }
 
-.text-accent { color: #d4af37; /* สีทองแชมเปญ */ font-weight: 400; }
+.text-accent { color: #d4af37; font-weight: 400; }
 
 .form-group { margin-bottom: 18px; }
 .row { display: flex; gap: 15px; }
@@ -225,7 +223,7 @@ label { display: block; font-weight: 300; margin-bottom: 8px; color: #e2e8f0; fo
   width: 100%;
   padding: 12px 15px;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.08); /* พื้นหลังขาวจางๆ */
+  background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
   border-radius: 12px;
@@ -238,7 +236,7 @@ label { display: block; font-weight: 300; margin-bottom: 8px; color: #e2e8f0; fo
 }
 
 .glass-input:focus {
-  border-color: #d4af37; /* ตอนกดพิมพ์ ขอบจะเปลี่ยนเป็นสีทอง */
+  border-color: #d4af37;
   background: rgba(255, 255, 255, 0.12);
   box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
 }
@@ -248,7 +246,7 @@ label { display: block; font-weight: 300; margin-bottom: 8px; color: #e2e8f0; fo
 .dark-option { background-color: #1e293b; color: #fff; }
 
 .highlight-box {
-  background: rgba(212, 175, 55, 0.05); /* พื้นหลังอมทองจางๆ */
+  background: rgba(212, 175, 55, 0.05);
   padding: 15px;
   border-radius: 12px;
   border: 1px solid rgba(212, 175, 55, 0.3);
@@ -260,7 +258,7 @@ label { display: block; font-weight: 300; margin-bottom: 8px; color: #e2e8f0; fo
   width: 100%;
   padding: 15px;
   margin-top: 10px;
-  background: linear-gradient(135deg, #d4af37, #b58d22); /* ไล่สีทอง */
+  background: linear-gradient(135deg, #d4af37, #b58d22);
   color: #fff;
   border: none;
   border-radius: 12px;

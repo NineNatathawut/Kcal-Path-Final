@@ -1,10 +1,5 @@
 <template>
   <div class="login-wrapper">
-    <!-- <img 
-      src="https://media.giphy.com/media/3o7TKo6fjy7XydHCiQ/giphy.gif" 
-      alt="Premium Background" 
-      class="gif-bg"
-    /> -->
     <div class="overlay"></div>
 
     <div class="login-container glass-card">
@@ -63,7 +58,8 @@ const login = async () => {
   localStorage.clear();
 
   try {
-    const response = await fetch('http://localhost:3000/login', {
+    // 🌟 แก้ไข: เติม /api/ นำหน้า URL ให้ตรงกับ Backend (Node.js) ใหม่
+    const response = await fetch('http://localhost:3000/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -81,15 +77,15 @@ const login = async () => {
       localStorage.setItem('username', data.user.username);
       
       alert('ยินดีต้อนรับครับ!');
-      router.push('/dashboard');
+      router.push('/dashboard'); // พาไปหน้า Dashboard
     } else {
-      // ❌ ล็อกอินไม่ผ่าน (Server ส่งสถานะ 401)
-      password.value = ''; // ล้างช่องรหัสผ่าน
+      // ❌ ล็อกอินไม่ผ่าน (เช่น รหัสผิด, ไม่มีชื่อผู้ใช้)
+      password.value = ''; // ล้างช่องรหัสผ่านให้พิมพ์ใหม่
       alert(data.error || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
     }
   } catch (error) {
     console.error("Login Error:", error);
-    alert('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ โปรดเช็คว่ารัน server.js หรือยัง');
+    alert('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ โปรดเช็คว่ารัน Backend ไว้หรือยัง');
   }
 };
 
@@ -129,7 +125,7 @@ const goToRegister = () => {
   position: relative;
   z-index: 2;
   width: 100%;
-  max-width: 420px; /* ขนาดกะทัดรัดกว่าหน้า Register นิดหน่อยเพื่อให้ฟอร์มดูแน่นสวย */
+  max-width: 420px;
   text-align: center;
 }
 
@@ -158,7 +154,7 @@ const goToRegister = () => {
   font-size: 1.1em;
 }
 
-.text-accent { color: #d4af37; /* สีทองแชมเปญ */ font-weight: 400; }
+.text-accent { color: #d4af37; font-weight: 400; }
 
 /* 🎨 --- ส่วนของฟอร์ม --- */
 .form-group { 
@@ -191,7 +187,7 @@ label {
 }
 
 .glass-input:focus {
-  border-color: #d4af37; /* ตอนกดพิมพ์ ขอบจะเปลี่ยนเป็นสีทอง */
+  border-color: #d4af37;
   background: rgba(255, 255, 255, 0.12);
   box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
 }
