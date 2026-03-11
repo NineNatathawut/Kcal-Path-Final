@@ -200,7 +200,5 @@ app.get('/api/daily-summary/:userId/:date', async (req, res) => {
 
 
 // 5. รัน Server
-
-app.listen(PORT, () => {
-    console.log(`🚀 Kcal-Path API Running at http://localhost:${PORT}`);
-});
+// 5. Export App ให้ Vercel Serverless นำไปใช้งาน
+module.exports = app;
