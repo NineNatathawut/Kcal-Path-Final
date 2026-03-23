@@ -372,8 +372,8 @@ async function submitFoodLog() {
         return 
       }
       
-      // 1.3 เอา ID ของอาหารที่เพิ่งสร้างเสร็จมาเก็บไว้เพื่อเตรียมบันทึกมื้ออาหาร
-      finalFoodId = d.food.id 
+      
+      finalFoodId = d.id 
       
     } catch (e) { 
       showToast('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'err')
