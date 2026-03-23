@@ -345,24 +345,7 @@ async function submitFoodLog() {
 
   let finalFoodId = selectedFoodId.value
 
-  if (inputMode.value === 'custom') {
-    if (!customFood.value.name || !customFood.value.calories) {
-      showToast('กรุณากรอกชื่ออาหารและแคลอรี่ให้ครบ', 'err'); return
-    }
-    try {
-      const r = await fetch('/api/foods', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(customFood.value)
-      })
-      const d = await r.json()
-      if (!r.ok) { showToast(d.error || 'สร้างอาหารไม่สำเร็จ', 'err'); return }
-      finalFoodId = d.food.id
-    } catch { showToast('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'err'); return }
-  } else {
-    if (!finalFoodId) { showToast('กรุณาเลือกอาหารก่อน', 'err'); return }
-  }
-
+  
   submitting.value = true
   try {
     const r = await fetch('/api/food-logs', {
