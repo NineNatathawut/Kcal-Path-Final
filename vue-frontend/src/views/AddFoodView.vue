@@ -346,15 +346,62 @@ async function submitFoodLog() {
   let finalFoodId = selectedFoodId.value
   console.log("Mode ตอนนี้คือ:", inputMode.value);
 
-  
+  // ==========================================
+  // ส่วนที่ 1: ตรวจสอบโหมดและสร้างอาหารใหม่ถ้าจำเป็น
+  // ==========================================
+  if (inputMode.value === 'custom') {
+    // 1.1 เช็คว่ากรอกข้อมูลครบไหม
+    if (!customFood.value.name || !customFood.value.calories) {
+      showToast('กรุณากรอกชื่ออาหารและแคลอรี่ให้ครบ', 'err')
+      return
+    }
+    
+    submitting.value = true
+    try {
+      // 1.2 ยิงไปสร้างอาหารใหม่ใน Database ก่อน
+      const r = await fetch('/api/foods', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(customFood.value)
+      })
+      const d = await r.json()
+      
+      if (!r.ok) { 
+        showToast(d.error || 'สร้างอาหารไม่สำเร็จ', 'err')
+        submitting.value = false
+        return 
+      }
+      
+      // 1.3 เอา ID ของอาหารที่เพิ่งสร้างเสร็จมาเก็บไว้เพื่อเตรียมบันทึกมื้ออาหาร
+      finalFoodId = d.food.id 
+      
+    } catch (e) { 
+      showToast('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'err')
+      submitting.value = false
+      return 
+    }
+  } else {
+    // ถ้าเป็นโหมด 'search' แล้วไม่ได้เลือกอาหารจาก list
+    if (!finalFoodId) { 
+      showToast('กรุณาเลือกอาหารก่อน', 'err')
+      return 
+    }
+  }
+
+  // ==========================================
+  // ส่วนที่ 2: บันทึกมื้ออาหาร (Food Log) ลง Database
+  // ==========================================
   submitting.value = true
   try {
     const r = await fetch('/api/food-logs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        user_id: userId, food_id: finalFoodId,
-        quantity: quantity.value, meal_type: mealType.value, log_date: logDate.value
+        user_id: userId, 
+        food_id: finalFoodId, // ตอนนี้ finalFoodId จะมีค่าตัวเลขแน่นอน ไม่ว่างเปล่าแล้ว!
+        quantity: quantity.value, 
+        meal_type: mealType.value, 
+        log_date: logDate.value
       })
     })
     const d = await r.json()
@@ -364,8 +411,11 @@ async function submitFoodLog() {
     } else {
       showToast(d.error || 'บันทึกไม่สำเร็จ', 'err')
     }
-  } catch { showToast('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'err') }
-  finally { submitting.value = false }
+  } catch { 
+    showToast('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'err') 
+  } finally { 
+    submitting.value = false 
+  }
 }
 
 onMounted(fetchFoods)
