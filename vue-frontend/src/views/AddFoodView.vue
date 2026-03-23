@@ -344,6 +344,7 @@ async function submitFoodLog() {
   if (!userId) { router.push('/login'); return }
 
   let finalFoodId = selectedFoodId.value
+  console.log("Mode ตอนนี้คือ:", inputMode.value);
 
   
   submitting.value = true
