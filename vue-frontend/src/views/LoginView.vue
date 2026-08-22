@@ -243,8 +243,8 @@ const loginWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        // ใช้ window.location.origin เพื่อให้ครอบคลุมทั้ง http://localhost:5174 และ Vercel URL
-        redirectTo: `${window.location.origin}/auth/callback`
+        // ใช้ Environment Variable สำหรับ Redirect URL (ตั้งค่าใน Vercel Dashboard สำหรับ Production)
+        redirectTo: import.meta.env.VITE_OAUTH_REDIRECT_URL || `${window.location.origin}/auth/callback`
       }
     })
 
