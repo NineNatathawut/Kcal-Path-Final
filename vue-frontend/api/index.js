@@ -200,5 +200,12 @@ app.get('/api/daily-summary/:userId/:date', async (req, res) => {
 
 
 // 5. รัน Server
-// 5. Export App ให้ Vercel Serverless นำไปใช้งาน
+// Export App ให้ Vercel Serverless นำไปใช้งาน
 module.exports = app;
+
+// Start server locally (not on Vercel)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
+}

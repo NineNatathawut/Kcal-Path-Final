@@ -23,9 +23,9 @@
           <div class="stat-row">
             <div class="stat"><div class="sv">ฟรี</div><div class="sl">ตลอดไป</div></div>
             <div class="stat-div"></div>
-            <div class="stat"><div class="sv">50K+</div><div class="sl">รายการอาหาร</div></div>
+            <div class="stat"><div class="sv">200+</div><div class="sl">เมนูอาหารไทย</div></div>
             <div class="stat-div"></div>
-            <div class="stat"><div class="sv">98%</div><div class="sl">แม่นยำ</div></div>
+            <div class="stat"><div class="sv">BMR/TDEE</div><div class="sl">คำนวณเฉพาะบุคคล</div></div>
           </div>
 
           <div class="ambient">สมัคร</div>
@@ -243,11 +243,13 @@
 
     </div>
   </div>
+    <Footer />
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import Footer from '@/components/Footer.vue'
 
 const router  = useRouter()
 const loading = ref(false)

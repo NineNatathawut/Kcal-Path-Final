@@ -10,9 +10,6 @@
         </svg>
         KcalPath
       </a>
-      <div class="nav-mid">
-        <a v-for="l in navLinks" :key="l" class="nl">{{ l }}</a>
-      </div>
       <div class="nav-end">
         <button class="n-text" @click="goTo('/login')">เข้าสู่ระบบ</button>
         <button class="n-pill" @click="goTo('/register')">สมัครฟรี</button>
@@ -31,7 +28,7 @@
       <div class="s1-inner">
         <!-- eyebrow -->
         <div class="eyebrow s1-a1">
-          <span class="ew-dot"></span> แพลตฟอร์มโภชนาการ · AI-Powered · 2026
+          <span class="ew-dot"></span> แพลตบันทึกฟอร์มโภชนาการ ·  · 2026
         </div>
 
         <!-- headline — staggered lines -->
@@ -41,13 +38,13 @@
         </div>
 
         <p class="s1-sub s1-a4">
-          ไม่ใช่การอด — แต่คือการเลือกอย่างชาญฉลาด<br>
-          ด้วยข้อมูลอาหารไทยกว่า 12,000 รายการ
+          ไม่ใช่การ อด — แต่คือการเลือกอย่างชาญฉลาด<br>
+          ด้วยข้อมูลอาหารไทยกว่า 200 รายการ
         </p>
 
         <div class="s1-btns s1-a5">
           <button class="btn-green" @click="goTo('/register')">
-            เริ่มต้นฟรีวันนี้
+            เริ่มต้นวันนี้
           </button>
           <button class="btn-line" @click="goTo('/login')">
             ดูทั้งหมด <span>›</span>
@@ -93,9 +90,9 @@
           <span v-for="t in ['อกไก่','ไข่ต้ม','แซลมอน','เต้าหู้','ถั่วเหลือง']" :key="t">{{ t }}</span>
         </div>
         <div class="cs-stat-row">
-          <div class="csr"><div class="csr-n" style="color:#30d158">4</div><div class="csr-l">kcal/g</div></div>
-          <div class="csr"><div class="csr-n">120<span>g</span></div><div class="csr-l">เป้าหมายต่อวัน</div></div>
-          <div class="csr"><div class="csr-n">85<span>g</span></div><div class="csr-l">วันนี้</div></div>
+          <div class="csr"><div class="csr-n" style="color:#30d158">0.8–1.0 กรัม </div><div class="csr-l">ต่อน้ำหนักตัว 1 กิโลกรัม</div></div>
+          <div class="csr"><div class="csr-n">60<span>กก.</span></div><div class="csr-l">น้ำหนัก</div></div>
+          <div class="csr"><div class="csr-n">48–60<span>กรัมต่อวัน</span></div><div class="csr-l">ควรทาน</div></div>
         </div>
       </div>
     </section>
@@ -113,9 +110,9 @@
           <span v-for="t in ['ข้าวกล้อง','มันหวาน','ข้าวโอ๊ต','โฮลวีต','ควินัว']" :key="t">{{ t }}</span>
         </div>
         <div class="cs-stat-row">
-          <div class="csr"><div class="csr-n" style="color:#ff9f0a">4</div><div class="csr-l">kcal/g</div></div>
-          <div class="csr"><div class="csr-n">250<span>g</span></div><div class="csr-l">เป้าหมายต่อวัน</div></div>
-          <div class="csr"><div class="csr-n">160<span>g</span></div><div class="csr-l">วันนี้</div></div>
+          <div class="csr"><div class="csr-n" style="color:#ff9f0a">3-5 กรัม</div><div class="csr-l">ต่อน้ำหนักตัว 1 กิโลกรัม</div></div>
+          <div class="csr"><div class="csr-n">60<span>กก.</span></div><div class="csr-l">น้ำหนัก</div></div>
+          <div class="csr"><div class="csr-n">180-300 <span>กรัมต่อวัน</span></div><div class="csr-l">ต้องการคาร์โบไฮเดรต</div></div>
         </div>
       </div>
       <div class="cs-media">
@@ -151,9 +148,9 @@
           <span v-for="t in ['อะโวคาโด','อัลมอนด์','น้ำมันมะกอก','ปลาทูน่า','วอลนัท']" :key="t">{{ t }}</span>
         </div>
         <div class="cs-stat-row">
-          <div class="csr"><div class="csr-n" style="color:#0a84ff">9</div><div class="csr-l">kcal/g</div></div>
-          <div class="csr"><div class="csr-n">65<span>g</span></div><div class="csr-l">เป้าหมายต่อวัน</div></div>
-          <div class="csr"><div class="csr-n">42<span>g</span></div><div class="csr-l">วันนี้</div></div>
+          <div class="csr"><div class="csr-n" style="color:#0a84ff">44-67 กรัม</div><div class="csr-l">ต่อวัน</div></div>
+          <div class="csr"><div class="csr-n">20-35<span></span></div><div class="csr-l">ควรได้รับในแต่ละวันคือร้อยละ</div></div>
+          <div class="csr"><div class="csr-n"><span></span></div><div class="csr-l"></div></div>
         </div>
       </div>
     </section>
@@ -171,9 +168,9 @@
           <span v-for="t in ['บรอกโคลี','ส้ม','เบอร์รี่','ผักบุ้ง','ฟักทอง']" :key="t">{{ t }}</span>
         </div>
         <div class="cs-stat-row">
-          <div class="csr"><div class="csr-n" style="color:#ff453a">13</div><div class="csr-l">ชนิด</div></div>
-          <div class="csr"><div class="csr-n">5<span>+</span></div><div class="csr-l">หน่วยต่อวัน</div></div>
-          <div class="csr"><div class="csr-n">4<span>หน่วย</span></div><div class="csr-l">วันนี้</div></div>
+          <div class="csr"><div class="csr-n" style="color:#ff453a">C B D A E Ca Mg</div><div class="csr-l">วิตามินและแร่ธาตุหลักในแต่ละวัน</div></div>
+          <div class="csr"><div class="csr-n">ประทานอาหารให้ครบ 5 หมู่ในทุกๆ<span>+</span></div><div class="csr-l"></div></div>
+          <div class="csr"><div class="csr-n">มักจะเพียงพอต่อความต้องการของร่างกาย<span></span></div><div class="csr-l">โดยไม่ต้องเสริม</div></div>
         </div>
       </div>
       <div class="cs-media">
@@ -227,28 +224,7 @@
       </div>
     </section>
 
-    <!-- ══════════════════════════════════════
-         SECTION 8 — TESTIMONIALS
-    ══════════════════════════════════════ -->
-    <section class="s-reviews" v-observe>
-      <div class="rev-head">
-        <div class="eyebrow">รีวิว</div>
-        <h2 class="h2-big">ผลลัพธ์<em>จริง</em></h2>
-      </div>
-      <div class="rev-grid">
-        <div class="rv" v-for="(r,i) in reviews" :key="i" v-observe :style="`transition-delay:${i*0.1}s`">
-          <div class="rv-stars">★★★★★</div>
-          <div class="rv-q">"{{ r.quote }}"</div>
-          <div class="rv-a">
-            <div class="rv-av" :style="`background:${r.bg}`">{{ r.init }}</div>
-            <div>
-              <div class="rv-name">{{ r.name }}</div>
-              <div class="rv-role">{{ r.role }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+  
 
     <!-- ══════════════════════════════════════
          SECTION 9 — FINAL CTA
@@ -259,7 +235,7 @@
       <div class="cta-inner">
         <div class="eyebrow">เริ่มต้นวันนี้</div>
         <h2 class="cta-h2">พร้อมแล้ว<br><em>หรือยัง?</em></h2>
-        <p class="cta-sub">ทดลองใช้ฟรี 14 วัน · ไม่ต้องใส่บัตรเครดิต</p>
+        <p class="cta-sub">ใช้งานฟรี 100% · ไม่ต้องใส่บัตรเครดิต</p>
         <div class="cta-btns">
           <button class="btn-green lg" @click="goTo('/register')">เริ่มต้นฟรีวันนี้</button>
           <button class="btn-line" @click="goTo('/login')">ดูราคาทั้งหมด <span>›</span></button>
@@ -267,31 +243,7 @@
       </div>
     </section>
 
-    <!-- ══ FOOTER ══ -->
-    <footer class="footer">
-      <div class="footer-top">
-        <div class="f-brand">
-          <div class="f-logo">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-                stroke="#30d158" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            KcalPath
-          </div>
-          <p class="f-desc">แพลตฟอร์มโภชนาการสำหรับคนไทย</p>
-        </div>
-        <div class="f-col" v-for="col in footerCols" :key="col.title">
-          <h4>{{ col.title }}</h4>
-          <a v-for="l in col.links" :key="l">{{ l }}</a>
-        </div>
-      </div>
-      <div class="footer-bot">
-        <span>Copyright © 2026 KcalPath. สงวนลิขสิทธิ์</span>
-        <div class="f-legal">
-          <a>ความเป็นส่วนตัว</a><a>เงื่อนไข</a><a>คุกกี้</a>
-        </div>
-      </div>
-    </footer>
+    <Footer />
 
   </div>
 </template>
@@ -299,29 +251,28 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import Footer from '@/components/Footer.vue'
 
 const router = useRouter()
 const goTo = (p) => router.push(p)
 const scrolled = ref(false)
 
-const navLinks = ['โภชนาการ', 'ติดตาม', 'แผนอาหาร', 'ราคา']
-
 const pills = [
-  { val: '12K+', label: 'รายการอาหาร', color: '#30d158' },
-  { val: '98%',  label: 'ความพึงพอใจ', color: '#0a84ff' },
-  { val: '50K+', label: 'ผู้ใช้งาน',   color: '#ff9f0a' },
-  { val: '14',   label: 'วันทดลองฟรี', color: '#ff453a' },
+  { val: '200+', label: 'เมนูอาหารไทย', color: '#30d158' },
+  { val: 'BMR/TDEE', label: 'คำนวณเฉพาะบุคคล', color: '#0a84ff' },
+  { val: '3', label: 'โหมดเป้าหมาย', color: '#ff9f0a' },
+  { val: '100%', label: 'ใช้งานฟรี', color: '#ff453a' },
 ]
 
 const stats = [
-  { num: '12', unit: ',000+', label: 'รายการอาหาร', desc: 'ฐานข้อมูลอาหารไทยที่ครบถ้วนที่สุด ครอบคลุมทุกเมนูและแบรนด์' },
-  { num: '98',  unit: '%',    label: 'ความพึงพอใจ', desc: 'จากผู้ใช้งานจริงกว่า 50,000 คนที่ไว้วางใจ KcalPath' },
-  { num: '14',  unit: ' วัน', label: 'ทดลองใช้ฟรี', desc: 'ไม่ต้องใส่บัตรเครดิต ทดลองได้ทันที ไม่มีข้อผูกมัด' },
+  { num: '200', unit: '+', label: 'เมนูอาหารไทย', desc: 'เน้นอาหารที่คนไทยกินจริง ครอบคลุมทุกเมนูยอดนิยม' },
+  { num: 'BMR/TDEE', unit: '', label: 'คำนวณเฉพาะบุคคล', desc: 'พลังงานที่เหมาะกับร่างกาย เป้าหมาย และวิถีชีวิตของคุณ' },
+  { num: '3', unit: '', label: 'โหมดเป้าหมาย', desc: 'ลดน้ำหนัก / รักษาน้ำหนัก / เพิ่มกล้ามเนื้อ เลือกได้ตามต้องการ' },
 ]
 
 const steps = [
   { num: '01', title: 'สมัครใน 30 วินาที', desc: 'กรอกข้อมูลพื้นฐาน ระบบคำนวณแคลอรี่ที่เหมาะกับคุณโดยเฉพาะ', arrow: '→' },
-  { num: '02', title: 'บันทึกทุกมื้อ', desc: 'ค้นหาจาก 12,000 รายการหรือสแกนบาร์โค้ด เร็วกว่า 30 วินาที', arrow: '→' },
+  { num: '02', title: 'บันทึกทุกมื้อ', desc: 'ค้นหาจาก 200+ เมนูอาหารไทยหรือสแกนบาร์โค้ด เร็วกว่า 30 วินาที', arrow: '→' },
   { num: '03', title: 'ติดตามผลลัพธ์', desc: 'กราฟและสถิติรายวัน รายสัปดาห์ เข้าใจและปรับพฤติกรรมได้ทันที', arrow: '✓' },
 ]
 
@@ -329,12 +280,6 @@ const reviews = [
   { quote: 'ใช้มา 3 เดือน น้ำหนักลด 7 กิโล ไม่ต้องอด แค่รู้ว่ากินอะไร แอปนี้เปลี่ยนชีวิตจริงๆ', name: 'คุณนิดา', role: 'ลดน้ำหนัก 7kg ใน 3 เดือน', init: 'น', bg: 'linear-gradient(135deg,#30d158,#0a84ff)' },
   { quote: 'ในฐานะนักกีฬา KcalPath มีฐานข้อมูลอาหารไทยครบที่สุดที่เคยใช้ โปรตีนแม่นยำมาก', name: 'คุณกิตติ', role: 'นักวิ่งมาราธอน', init: 'ก', bg: 'linear-gradient(135deg,#ff9f0a,#ff453a)' },
   { quote: 'แนะนำให้คนไข้ทุกคน ข้อมูลแม่นยำ ใช้งานง่าย เหมาะกับคนไทยมากที่สุด', name: 'พญ. ดารา', role: 'แพทย์โภชนาการ', init: 'ด', bg: 'linear-gradient(135deg,#0a84ff,#5e5ce6)' },
-]
-
-const footerCols = [
-  { title: 'ผลิตภัณฑ์', links: ['ฟีเจอร์', 'ราคา', 'ดาวน์โหลด', 'API'] },
-  { title: 'บริษัท',    links: ['เกี่ยวกับ', 'ร่วมงาน', 'ข่าวสาร', 'ติดต่อ'] },
-  { title: 'ช่วยเหลือ', links: ['คู่มือ', 'บล็อก', 'ชุมชน', 'สนับสนุน'] },
 ]
 
 const onScroll = () => scrolled.value = window.scrollY > 10
@@ -672,24 +617,6 @@ const vObserve = {
 .cta-sub { font-size: clamp(.88rem,1.4vw,1.08rem); font-weight: 300; color: #6e6e73; line-height: 1.8; margin-bottom: 44px; }
 .cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
-/* ══ FOOTER ══ */
-.footer { background: #0a0a0a; border-top: 1px solid rgba(255,255,255,.07); padding: 52px 48px 28px; }
-.footer-top { display: grid; grid-template-columns: 220px repeat(3,1fr); gap: 32px; margin-bottom: 40px; }
-.f-brand { display: flex; flex-direction: column; gap: 10px; }
-.f-logo { font-family: 'Prompt', sans-serif; font-weight: 700; font-size: .92rem; color: #f5f5f7; display: flex; align-items: center; gap: 7px; }
-.f-desc { font-size: .68rem; color: #6e6e73; line-height: 1.6; }
-.f-col h4 { font-size: .68rem; font-weight: 600; color: #f5f5f7; letter-spacing: .02em; margin-bottom: 14px; }
-.f-col a { display: block; font-size: .68rem; color: #6e6e73; text-decoration: none; margin-bottom: 9px; transition: color .2s; cursor: pointer; }
-.f-col a:hover { color: #f5f5f7; }
-.footer-bot {
-  border-top: 1px solid rgba(255,255,255,.07); padding-top: 20px;
-  display: flex; justify-content: space-between; align-items: center;
-}
-.footer-bot > span { font-size: .64rem; color: #6e6e73; }
-.f-legal { display: flex; gap: 18px; }
-.f-legal a { font-size: .64rem; color: #6e6e73; text-decoration: none; cursor: pointer; transition: color .2s; }
-.f-legal a:hover { color: #f5f5f7; }
-
 /* ══ RESPONSIVE ══ */
 @media (max-width: 860px) {
   .nav-mid { display: none; }
@@ -704,6 +631,5 @@ const vObserve = {
   .hs { border-radius: 0 !important; }
   .rv:last-child { grid-column: auto; }
   .stat-row { grid-template-columns: 1fr; border-radius: 0; }
-  .footer-top { grid-template-columns: 1fr 1fr; }
 }
 </style>

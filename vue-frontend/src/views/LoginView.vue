@@ -1,6 +1,5 @@
 <template>
   <div class="page">
-
     <!-- grid bg -->
     <div class="grid-bg"></div>
     <div class="glow-top"></div>
@@ -18,7 +17,6 @@
 
     <!-- MAIN -->
     <main class="main">
-
       <!-- LEFT — branding -->
       <div class="left">
         <div class="left-inner">
@@ -50,7 +48,6 @@
       <!-- RIGHT — form card -->
       <div class="right">
         <div class="card" :class="{ shake: shaking }">
-
           <!-- header -->
           <div class="card-head">
             <div class="card-icon">
@@ -73,7 +70,6 @@
 
           <!-- form -->
           <div class="form">
-
             <div class="field">
               <label>ชื่อผู้ใช้</label>
               <div class="input-wrap" :class="{ focused: focusedField === 'user', error: errorMsg }">
@@ -134,11 +130,23 @@
               </span>
             </button>
 
+            <!-- Divider -->
             <div class="divider-line">
               <span></span>
               <p>หรือ</p>
               <span></span>
             </div>
+
+            <!-- ปุ่ม Google Login -->
+            <button class="btn-google" @click="loginWithGoogle" :disabled="loading" type="button">
+              <svg class="google-icon" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              เข้าสู่ระบบด้วย Google
+            </button>
 
             <p class="register-row">
               ยังไม่มีบัญชี?
@@ -150,14 +158,19 @@
           </div>
         </div>
       </div>
-
     </main>
+    <Footer />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import Footer from '@/components/Footer.vue'
+
+// 1. นำเข้า Supabase Client (อย่าลืมแก้ path ให้ตรงกับที่เก็บไฟล์ supabase ของคุณ)
+// ตัวอย่าง: ถ้าไฟล์ชื่อ supabase.js อยู่ใน src/ ให้ใช้ import { supabase } from '@/supabase'
+import { supabase } from '../supabase' // <--- แก้ตรงนี้ให้ตรงกับโปรเจกต์ของคุณ
 
 const router = useRouter()
 const goTo = (path) => router.push(path)
@@ -171,9 +184,10 @@ const shaking      = ref(false)
 const focusedField = ref('')
 
 const stats = [
-  { val: '12K+', label: 'รายการอาหาร', color: '#30d158' },
-  { val: '98%',  label: 'ความพึงพอใจ', color: '#0a84ff' },
-  { val: '50K+', label: 'ผู้ใช้งาน',  color: '#ff9f0a' },
+  { val: '200+', label: 'เมนูอาหารไทย', color: '#30d158' },
+  { val: 'BMR/TDEE', label: 'คำนวณเฉพาะบุคคล', color: '#0a84ff' },
+  { val: '3', label: 'โหมดเป้าหมาย', color: '#ff9f0a' },
+  { val: '100%', label: 'ใช้งานฟรี', color: '#ff453a' },
 ]
 
 const triggerShake = () => {
@@ -216,6 +230,31 @@ const login = async () => {
     errorMsg.value = 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาลองใหม่อีกครั้ง'
     triggerShake()
   } finally {
+    loading.value = false
+  }
+}
+
+// 2. ฟังก์ชัน Login ด้วย Google ผ่าน Supabase
+const loginWithGoogle = async () => {
+  errorMsg.value = ''
+  loading.value = true // แสดงแอนิเมชันโหลด
+  
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        // ใช้ window.location.origin เพื่อให้ครอบคลุมทั้ง http://localhost:5174 และ Vercel URL
+        redirectTo: `${window.location.origin}/auth/callback`
+      }
+    })
+
+    if (error) throw error
+
+    // ปกติเมื่อรันถึงบรรทัดนี้ ระบบจะ redirect ไปที่หน้าต่างของ Google อัตโนมัติ
+
+  } catch (error) {
+    errorMsg.value = 'เกิดข้อผิดพลาดในการเชื่อมต่อกับ Google'
+    triggerShake()
     loading.value = false
   }
 }
@@ -435,6 +474,21 @@ input:disabled { opacity: .5; cursor: not-allowed; }
 }
 .btn-submit:hover:not(:disabled) { background: #28b84c; transform: scale(.99); }
 .btn-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+/* google login button */
+.btn-google {
+  width: 100%; height: 50px; margin-bottom: 24px;
+  background: rgba(255,255,255,.05); color: #f5f5f7;
+  border: 1px solid rgba(255,255,255,.1); border-radius: 12px;
+  font-family: 'Prompt', sans-serif; font-size: .95rem; font-weight: 400;
+  cursor: pointer; transition: all .22s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.btn-google:hover:not(:disabled) {
+  background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.2);
+}
+.btn-google:disabled { opacity: .6; cursor: not-allowed; }
+.google-icon { width: 20px; height: 20px; flex-shrink: 0; }
 
 /* loading dots */
 .loading-dots {
