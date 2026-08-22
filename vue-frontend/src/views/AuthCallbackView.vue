@@ -11,45 +11,66 @@
 import { onMounted } from 'vue'
 import { supabase } from '@/supabase'
 
-onMounted(() => {
-  // Fallback: redirect to login if auth state doesn't resolve within 4 seconds
+onMounted(async () => {
+  // Fallback: redirect to login if auth state doesn't resolve within 5 seconds
   const fallbackTimer = setTimeout(() => {
     window.location.replace('/login')
-  }, 4000)
+  }, 5000)
 
-  // Listen for auth state changes - handles both INITIAL_SESSION and SIGNED_IN
+  // Helper function to process session and redirect
+  async function processSession(session) {
+    clearTimeout(fallbackTimer)
+    
+    // Get local user ID (fallback to Supabase UUID)
+    let localUserId = session.user.id
+    let displayName = session.user.email || session.user.user_metadata?.full_name || 'User'
+    
+    try {
+      const { data: user } = await supabase
+        .from('users')
+        .select('id, username')
+        .eq('email', session.user.email)
+        .single()
+      if (user) {
+        localUserId = user.id
+        displayName = user.username
+      }
+    } catch (err) {
+      console.warn('Local user fetch failed, using auth ID:', err)
+    }
+
+    localStorage.setItem('isLoggedIn', 'true')
+    localStorage.setItem('userId', localUserId)
+    localStorage.setItem('username', displayName)
+
+    // Use full page reload to avoid SPA race condition on Vercel
+    setTimeout(() => {
+      window.location.replace('/dashboard')
+    }, 200)
+  }
+
+  // 1. FIRST: Check for existing session immediately (catches INITIAL_SESSION from URL hash)
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession()
+    
+    if (session) {
+      await processSession(session)
+      return
+    }
+    
+    if (error) {
+      console.warn('getSession error, falling back to listener:', error)
+    }
+  } catch (err) {
+    console.warn('getSession failed, falling back to listener:', err)
+  }
+
+  // 2. SECOND: Listen for future auth state changes
   const { data: { subscription } } = supabase.auth.onAuthStateChange(
     async (event, session) => {
       if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
-        clearTimeout(fallbackTimer)
         subscription.unsubscribe()
-        
-        // Get local user ID (fallback to Supabase UUID)
-        let localUserId = session.user.id
-        let displayName = session.user.email || session.user.user_metadata?.full_name || 'User'
-        
-        try {
-          const { data: user } = await supabase
-            .from('users')
-            .select('id, username')
-            .eq('email', session.user.email)
-            .single()
-          if (user) {
-            localUserId = user.id
-            displayName = user.username
-          }
-        } catch (err) {
-          console.warn('Local user fetch failed, using auth ID:', err)
-        }
-
-        localStorage.setItem('isLoggedIn', 'true')
-        localStorage.setItem('userId', localUserId)
-        localStorage.setItem('username', displayName)
-
-        // Use full page reload to avoid SPA race condition on Vercel
-        setTimeout(() => {
-          window.location.replace('/dashboard')
-        }, 200)
+        await processSession(session)
       } else if (event === 'SIGNED_OUT') {
         clearTimeout(fallbackTimer)
         setTimeout(() => {
