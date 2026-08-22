@@ -8,25 +8,35 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 
-// 1. ตั้งค่า Database (Supabase)
+// 1. ตั้งค่า Database (Supabase) - Serverless-friendly config
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+  max: 1,
+  idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 5000,
 });
 
-// ตรวจสอบการเชื่อมต่อ
-pool.connect((err, client, release) => {
-    if (err) {
-        return console.error('❌ ไม่สามารถเชื่อมต่อ Supabase ได้:', err.stack);
-    }
-    console.log('✅ เชื่อมต่อฐานข้อมูล Supabase สำเร็จแล้ว!');
-    release();
-});
+// Helper function to get client with error handling
+async function getDbClient() {
+  try {
+    const client = await pool.connect();
+    return client;
+  } catch (err) {
+    console.error('[DB CONNECTION ERROR]', err);
+    throw new Error('Database connection failed');
+  }
+}
 
 
 // 2. API: ระบบผู้ใช้ (Users & Auth)
@@ -34,6 +44,7 @@ pool.connect((err, client, release) => {
 
 // สมัครสมาชิก
 app.post('/api/register', async (req, res) => {
+    let client;
     try {
         const { username, password, email, weight, height, age, gender, activity_level, goal } = req.body;
         
@@ -50,20 +61,25 @@ app.post('/api/register', async (req, res) => {
         `;
         const values = [username, hashedPassword, email, weight, height, age, gender, activity_level, goal];
         
-        const result = await pool.query(sql, values);
+        client = await getDbClient();
+        const result = await client.query(sql, values);
         res.status(201).json({ message: '✅ สมัครสมาชิกสำเร็จ!', userId: result.rows[0].id });
 
     } catch (error) {
-        console.error('Register Error:', error);
+        console.error('[DB ERROR] Register:', error);
         res.status(500).json({ error: 'ชื่อผู้ใช้หรืออีเมลนี้อาจถูกใช้ไปแล้ว' });
+    } finally {
+        if (client) client.release();
     }
 });
 
 // เข้าสู่ระบบ
 app.post('/api/login', async (req, res) => {
+    let client;
     try {
         const { username, password } = req.body;
-        const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+        client = await getDbClient();
+        const result = await client.query('SELECT * FROM users WHERE username = $1', [username]);
 
         if (result.rows.length === 0) {
             return res.status(401).json({ error: 'ไม่พบชื่อผู้ใช้นี้' });
@@ -81,33 +97,46 @@ app.post('/api/login', async (req, res) => {
             user: { id: user.id, username: user.username, email: user.email }
         });
     } catch (error) {
+        console.error('[DB ERROR] Login:', error);
         res.status(500).json({ error: 'เกิดข้อผิดพลาดที่เซิร์ฟเวอร์' });
+    } finally {
+        if (client) client.release();
     }
 });
 
 // ดึงข้อมูลส่วนตัว
 app.get('/api/users/:id', async (req, res) => {
+    let client;
     try {
-        const result = await pool.query('SELECT id, username, email, weight, height, age, gender, activity_level, goal FROM users WHERE id = $1', [req.params.id]);
+        client = await getDbClient();
+        const result = await client.query('SELECT id, username, email, weight, height, age, gender, activity_level, goal FROM users WHERE id = $1', [req.params.id]);
         if (result.rows.length === 0) return res.status(404).json({ error: 'ไม่พบผู้ใช้' });
         res.json(result.rows[0]);
     } catch (error) {
+        console.error('[DB ERROR] Get User:', error);
         res.status(500).json({ error: 'ดึงข้อมูลล้มเหลว' });
+    } finally {
+        if (client) client.release();
     }
 });
 
 // อัปเดตข้อมูลส่วนตัว
 app.put('/api/users/:id', async (req, res) => {
+    let client;
     try {
         const { weight, height, age, gender, activity_level, goal } = req.body;
         const sql = `
             UPDATE users SET weight=$1, height=$2, age=$3, gender=$4, activity_level=$5, goal=$6 
             WHERE id=$7
         `;
-        await pool.query(sql, [weight, height, age, gender, activity_level, goal, req.params.id]);
+        client = await getDbClient();
+        await client.query(sql, [weight, height, age, gender, activity_level, goal, req.params.id]);
         res.json({ message: '✅ อัปเดตข้อมูลสำเร็จ!' });
     } catch (error) {
+        console.error('[DB ERROR] Update User:', error);
         res.status(500).json({ error: 'อัปเดตล้มเหลว' });
+    } finally {
+        if (client) client.release();
     }
 });
 
@@ -117,23 +146,33 @@ app.put('/api/users/:id', async (req, res) => {
 
 // ดึงรายการอาหารทั้งหมด
 app.get('/api/foods', async (req, res) => {
+    let client;
     try {
-        const result = await pool.query('SELECT * FROM foods ORDER BY name ASC');
+        client = await getDbClient();
+        const result = await client.query('SELECT * FROM foods ORDER BY name ASC');
         res.json(result.rows);
     } catch (err) {
+        console.error('[DB ERROR] Get Foods:', err);
         res.status(500).json({ error: "ดึงข้อมูลอาหารไม่ได้" });
+    } finally {
+        if (client) client.release();
     }
 });
 
 // เพิ่มเมนูอาหารใหม่
 app.post('/api/foods', async (req, res) => {
+    let client;
     try {
         const { name, calories, protein, carbs, fat } = req.body;
         const sql = 'INSERT INTO foods (name, calories, protein, carbs, fat) VALUES ($1, $2, $3, $4, $5) RETURNING *';
-        const result = await pool.query(sql, [name, calories, protein || 0, carbs || 0, fat || 0]);
+        client = await getDbClient();
+        const result = await client.query(sql, [name, calories, protein || 0, carbs || 0, fat || 0]);
         res.status(201).json(result.rows[0]);
     } catch (err) {
+        console.error('[DB ERROR] Add Food:', err);
         res.status(500).json({ error: "เพิ่มอาหารไม่ได้" });
+    } finally {
+        if (client) client.release();
     }
 });
 
@@ -142,28 +181,39 @@ app.post('/api/foods', async (req, res) => {
 
 // บันทึกมื้ออาหาร
 app.post('/api/food-logs', async (req, res) => {
+    let client;
     try {
         const { user_id, food_id, quantity, meal_type, log_date } = req.body;
         const sql = `INSERT INTO food_logs (user_id, food_id, quantity, meal_type, log_date) VALUES ($1, $2, $3, $4, $5) RETURNING id`;
-        const result = await pool.query(sql, [user_id, food_id, quantity || 1, meal_type, log_date]);
+        client = await getDbClient();
+        const result = await client.query(sql, [user_id, food_id, quantity || 1, meal_type, log_date]);
         res.status(201).json({ message: '✅ บันทึกสำเร็จ!', logId: result.rows[0].id });
     } catch (err) {
+        console.error('[DB ERROR] Add Food Log:', err);
         res.status(500).json({ error: err.message });
+    } finally {
+        if (client) client.release();
     }
 });
 
 // ลบบันทึก
 app.delete('/api/food-logs/:id', async (req, res) => {
+    let client;
     try {
-        await pool.query('DELETE FROM food_logs WHERE id = $1', [req.params.id]);
+        client = await getDbClient();
+        await client.query('DELETE FROM food_logs WHERE id = $1', [req.params.id]);
         res.json({ message: '🗑️ ลบรายการแล้ว' });
     } catch (err) {
+        console.error('[DB ERROR] Delete Food Log:', err);
         res.status(500).json({ error: 'ลบไม่สำเร็จ' });
+    } finally {
+        if (client) client.release();
     }
 });
 
 // สรุปรายวัน (ใช้ SQL SUM เพื่อความแม่นยำและรวดเร็ว)
 app.get('/api/daily-summary/:userId/:date', async (req, res) => {
+    let client;
     try {
         const { userId, date } = req.params;
         const sql = `
@@ -176,7 +226,8 @@ app.get('/api/daily-summary/:userId/:date', async (req, res) => {
             JOIN foods f ON fl.food_id = f.id
             WHERE fl.user_id = $1 AND fl.log_date::date = $2::date
         `;
-        const result = await pool.query(sql, [userId, date]);
+        client = await getDbClient();
+        const result = await client.query(sql, [userId, date]);
         const logs = result.rows;
 
         let summary = { total_calories: 0, total_protein: 0, total_carbs: 0, total_fat: 0 };
@@ -194,7 +245,25 @@ app.get('/api/daily-summary/:userId/:date', async (req, res) => {
 
         res.json({ date, summary, logs });
     } catch (err) {
+        console.error('[DB ERROR] Daily Summary:', err);
         res.status(500).json({ error: 'ดึงข้อมูลสรุปไม่ได้' });
+    } finally {
+        if (client) client.release();
+    }
+});
+
+// Health check endpoint for Vercel monitoring
+app.get('/api/health', async (req, res) => {
+    let client;
+    try {
+        client = await getDbClient();
+        await client.query('SELECT 1');
+        res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    } catch (error) {
+        console.error('[HEALTH CHECK ERROR]', error);
+        res.status(503).json({ status: 'error', error: error.message, timestamp: new Date().toISOString() });
+    } finally {
+        if (client) client.release();
     }
 });
 
@@ -203,9 +272,28 @@ app.get('/api/daily-summary/:userId/:date', async (req, res) => {
 // Export App ให้ Vercel Serverless นำไปใช้งาน
 module.exports = app;
 
-// Start server locally (not on Vercel)
+// Graceful shutdown for local development
 if (require.main === module) {
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
   });
+
+  // Graceful shutdown handlers
+  const shutdown = async (signal) => {
+    console.log(`\n${signal} received. Shutting down gracefully...`);
+    try {
+      await pool.end();
+      console.log('Database pool closed.');
+      server.close(() => {
+        console.log('HTTP server closed.');
+        process.exit(0);
+      });
+    } catch (err) {
+      console.error('Error during shutdown:', err);
+      process.exit(1);
+    }
+  };
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 }
