@@ -9,10 +9,7 @@
 
 <script setup>
 import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { supabase } from '@/supabase'
-
-const router = useRouter()
 
 onMounted(() => {
   // Listen for auth state changes - waits for Supabase to parse URL hash
@@ -43,9 +40,14 @@ onMounted(() => {
         localStorage.setItem('userId', localUserId)
         localStorage.setItem('username', displayName)
 
-        router.push('/dashboard')
+        // Use full page reload to avoid SPA race condition on Vercel
+        setTimeout(() => {
+          window.location.replace('/dashboard')
+        }, 100)
       } else if (event === 'SIGNED_OUT') {
-        router.push('/login')
+        setTimeout(() => {
+          window.location.replace('/login')
+        }, 100)
       }
     }
   )
