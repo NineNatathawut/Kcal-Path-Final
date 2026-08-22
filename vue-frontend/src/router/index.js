@@ -13,12 +13,14 @@ const router = createRouter({
     {
       path: '/',          // หน้าแรกสุด (ต้อนรับ)
       name: 'home',
-      component: HomeView
+      component: HomeView,
+      meta: { public: true }
     },
     {
       path: '/login',     // หน้าเข้าสู่ระบบ
       name: 'login',
-      component: LoginView
+      component: LoginView,
+      meta: { public: true }
     },
     {
       path: '/dashboard', // หน้าแผงควบคุม
@@ -35,7 +37,8 @@ const router = createRouter({
     {
       path: '/register',
       name: 'register',
-      component: RegisterView
+      component: RegisterView,
+      meta: { public: true }
     },
     {
       path: '/edit-profile',
@@ -52,32 +55,38 @@ const router = createRouter({
       path: '/auth/callback',
       name: 'auth-callback',
       component: () => import('../views/AuthCallbackView.vue'),
-      meta: { requiresAuth: false }
+      meta: { requiresAuth: false, public: true }
     }
   ]
 })
 
 // 💂‍♂️ จ้างยามเฝ้าประตู (Navigation Guard)
 router.beforeEach(async (to, from) => {
-  // ข้ามการเช็ก Auth สำหรับหน้า callback
-  if (to.path === '/auth/callback') {
+  // ปล่อยผ่านหน้า public และ callback ทันที
+  if (to.meta.public || to.path === '/auth/callback' || to.name === 'auth-callback') {
     return true
   }
 
   // 1. เช็คว่าหน้าที่จะไป (to) มีป้ายหวงห้าม (requiresAuth) ไหม?
   if (to.meta.requiresAuth) {
     // 2. เช็ค Supabase session และ localStorage
-    const { data: { session } } = await supabase.auth.getSession()
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
 
-    if (session || isLoggedIn) {
-      return true // มี session หรือ localStorage ถือว่าล็อกอินแล้ว
-    } else {
-      alert('หยุดก่อน! 🛑 คุณต้องเข้าสู่ระบบก่อนถึงจะเข้าใช้งานได้ครับ')
-      return '/login' // ไม่มี session เตะกลับไปหน้า Login!
+      if (session || isLoggedIn) {
+        return true // มี session หรือ localStorage ถือว่าล็อกอินแล้ว
+      } else {
+        alert('หยุดก่อน! 🛑 คุณต้องเข้าสู่ระบบก่อนถึงจะเข้าใช้งานได้ครับ')
+        return '/login' // ไม่มี session เตะกลับไปหน้า Login!
+      }
+    } catch (err) {
+      console.error('[ROUTER GUARD ERROR]', err)
+      // Fail open - ไม่บล็อกผู้ใช้เมื่อเกิด error
+      return true
     }
   }
-  // 3. ถ้าเป็นหน้าทั่วไป (Home, Login) ปล่อยผ่านได้เลย
+  // 3. ถ้าเป็นหน้าทั่วไป ปล่อยผ่านได้เลย
   return true
 })
 
