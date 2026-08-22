@@ -10,75 +10,47 @@
 <script setup>
 import { onMounted } from 'vue'
 import { supabase } from '@/supabase'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 onMounted(async () => {
-  // Fallback: redirect to login if auth state doesn't resolve within 5 seconds
-  const fallbackTimer = setTimeout(() => {
-    window.location.replace('/login')
-  }, 5000)
+  // Parse tokens from URL query params (Supabase returns tokens in query string when using redirectTo)
+  const params = new URLSearchParams(window.location.search)
+  const accessToken = params.get('access_token')
+  const refreshToken = params.get('refresh_token')
 
-  // Helper function to process session and redirect
-  async function processSession(session) {
-    clearTimeout(fallbackTimer)
-    
-    // Get local user ID (fallback to Supabase UUID)
-    let localUserId = session.user.id
-    let displayName = session.user.email || session.user.user_metadata?.full_name || 'User'
-    
-    try {
-      const { data: user } = await supabase
-        .from('users')
-        .select('id, username')
-        .eq('email', session.user.email)
-        .single()
-      if (user) {
-        localUserId = user.id
-        displayName = user.username
-      }
-    } catch (err) {
-      console.warn('Local user fetch failed, using auth ID:', err)
-    }
+  if (accessToken && refreshToken) {
+    // Set session directly in Supabase client
+    const { error } = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken
+    })
 
-    localStorage.setItem('isLoggedIn', 'true')
-    localStorage.setItem('userId', localUserId)
-    localStorage.setItem('username', displayName)
-
-    // Use full page reload to avoid SPA race condition on Vercel
-    setTimeout(() => {
+    if (!error) {
+      // Save minimal auth state to localStorage
+      localStorage.setItem('isLoggedIn', 'true')
+      localStorage.setItem('userId', 'oauth-user') // placeholder, real ID fetched on dashboard load
+      localStorage.setItem('username', 'User')      // placeholder
+      
+      // Hard redirect to dashboard (full page reload to avoid SPA race conditions)
       window.location.replace('/dashboard')
-    }, 200)
-  }
-
-  // 1. FIRST: Check for existing session immediately (catches INITIAL_SESSION from URL hash)
-  try {
-    const { data: { session }, error } = await supabase.auth.getSession()
-    
-    if (session) {
-      await processSession(session)
       return
     }
-    
-    if (error) {
-      console.warn('getSession error, falling back to listener:', error)
-    }
-  } catch (err) {
-    console.warn('getSession failed, falling back to listener:', err)
   }
 
-  // 2. SECOND: Listen for future auth state changes
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(
-    async (event, session) => {
-      if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
-        subscription.unsubscribe()
-        await processSession(session)
-      } else if (event === 'SIGNED_OUT') {
-        clearTimeout(fallbackTimer)
-        setTimeout(() => {
-          window.location.replace('/login')
-        }, 100)
-      }
-    }
-  )
+  // Fallback: try getSession (for hash-based flows or if tokens already in storage)
+  const { data: { session } } = await supabase.auth.getSession()
+  if (session) {
+    localStorage.setItem('isLoggedIn', 'true')
+    localStorage.setItem('userId', session.user.id)
+    localStorage.setItem('username', session.user.email || 'User')
+    window.location.replace('/dashboard')
+    return
+  }
+
+  // Fast fail: no tokens, no session → back to login immediately
+  window.location.replace('/login')
 })
 </script>
 
