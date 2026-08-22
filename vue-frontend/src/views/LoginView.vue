@@ -244,7 +244,12 @@ const loginWithGoogle = async () => {
       provider: 'google',
       options: {
         // ใช้ Environment Variable สำหรับ Redirect URL (ตั้งค่าใน Vercel Dashboard สำหรับ Production)
-        redirectTo: import.meta.env.VITE_OAUTH_REDIRECT_URL || `${window.location.origin}/auth/callback`
+        redirectTo: import.meta.env.VITE_OAUTH_REDIRECT_URL || `${window.location.origin}/auth/callback`,
+        
+        // บังคับให้ Supabase ส่งค่ากลับมาแบบ Query String (?access_token=...) แทน Hash (#)
+        queryParams: {
+          prompt: 'consent' // แถมการบังคับให้ Google ถามหน้าต่างยืนยันทุกครั้ง เพื่อล้าง Cache Session เก่าด้วย
+        }
       }
     })
 
