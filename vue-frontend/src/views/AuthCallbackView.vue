@@ -14,38 +14,41 @@ import { supabase } from '@/supabase'
 
 const router = useRouter()
 
-onMounted(async () => {
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-  
-  if (sessionError || !session) {
-    console.error('Auth callback error:', sessionError)
-    router.push('/login')
-    return
-  }
+onMounted(() => {
+  // Listen for auth state changes - waits for Supabase to parse URL hash
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        subscription.unsubscribe()
+        
+        // Get local user ID (fallback to Supabase UUID)
+        let localUserId = session.user.id
+        let displayName = session.user.email || session.user.user_metadata?.full_name || 'User'
+        
+        try {
+          const { data: user } = await supabase
+            .from('users')
+            .select('id, username')
+            .eq('email', session.user.email)
+            .single()
+          if (user) {
+            localUserId = user.id
+            displayName = user.username
+          }
+        } catch (err) {
+          console.warn('Local user fetch failed, using auth ID:', err)
+        }
 
-  try {
-    // Direct query to public.users table via Supabase Client
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('id, username')
-      .eq('email', session.user.email)
-      .single()
+        localStorage.setItem('isLoggedIn', 'true')
+        localStorage.setItem('userId', localUserId)
+        localStorage.setItem('username', displayName)
 
-    if (userError || !user) {
-      console.error('User not found in public.users:', userError)
-      router.push('/login')
-      return
+        router.push('/dashboard')
+      } else if (event === 'SIGNED_OUT') {
+        router.push('/login')
+      }
     }
-
-    localStorage.setItem('isLoggedIn', 'true')
-    localStorage.setItem('userId', user.id)
-    localStorage.setItem('username', user.username)
-
-    router.push('/dashboard')
-  } catch (err) {
-    console.error('Failed to sync local user:', err)
-    router.push('/login')
-  }
+  )
 })
 </script>
 
