@@ -12,10 +12,16 @@ import { onMounted } from 'vue'
 import { supabase } from '@/supabase'
 
 onMounted(() => {
-  // Listen for auth state changes - waits for Supabase to parse URL hash
+  // Fallback: redirect to login if auth state doesn't resolve within 4 seconds
+  const fallbackTimer = setTimeout(() => {
+    window.location.replace('/login')
+  }, 4000)
+
+  // Listen for auth state changes - handles both INITIAL_SESSION and SIGNED_IN
   const { data: { subscription } } = supabase.auth.onAuthStateChange(
     async (event, session) => {
-      if (event === 'SIGNED_IN' && session) {
+      if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        clearTimeout(fallbackTimer)
         subscription.unsubscribe()
         
         // Get local user ID (fallback to Supabase UUID)
@@ -43,8 +49,9 @@ onMounted(() => {
         // Use full page reload to avoid SPA race condition on Vercel
         setTimeout(() => {
           window.location.replace('/dashboard')
-        }, 100)
+        }, 200)
       } else if (event === 'SIGNED_OUT') {
+        clearTimeout(fallbackTimer)
         setTimeout(() => {
           window.location.replace('/login')
         }, 100)
